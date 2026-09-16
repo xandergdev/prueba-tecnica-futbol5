@@ -50,7 +50,9 @@ El proyecto sigue una arquitectura por capas:
 - **entity**: `Jugador` y `Entrenamiento` (relación `@ManyToOne` de Entrenamiento hacia Jugador).
 - **repository**: `JugadorRepository` y `EntrenamientoRepository` (con la consulta derivada `findByJugadorAndSemana`).
 - **service**: `EntrenamientoService`, contiene la lógica de negocio (cálculo del resultado, validación de entrenamientos completos, cálculo de promedios y selección de titulares).
-- **dto**: `TitularesDTO`, usado para exponer el resumen de cada jugador titular sin exponer las entidades directamente.
+- **dto**:
+  - `EntrenamientoRequestDTO`: datos de entrada al registrar un entrenamiento, para no exponer la entidad directamente.
+  - `TitularesDTO`: resumen de cada jugador titular que se devuelve al cliente.
 - **controller**: `EntrenamientoController` (endpoints principales de la prueba) y `JugadorController` (endpoint auxiliar para crear jugadores de prueba).
 
 ## Endpoints
@@ -79,7 +81,7 @@ POST /entrenamientos
 Body:
 ```json
 {
-  "jugador": { "id": 1 },
+  "jugadorId": 1,
   "semana": 1,
   "potencia": 10,
   "velocidad": 5,
@@ -87,13 +89,15 @@ Body:
 }
 ```
 
+El `jugadorId` debe corresponder a un jugador ya existente; si no se encuentra, la petición falla.
+
 El `resultado` de ese entrenamiento se calcula automáticamente con la fórmula:
 
 ```
 resultado = potencia * 0.20 + velocidad * 0.30 + pases * 0.50
 ```
 
-Respuesta: el entrenamiento guardado, incluyendo el `resultado` calculado.
+Respuesta (status 201): el entrenamiento guardado, incluyendo el `resultado` calculado.
 
 ### 3. Obtener el equipo titular de una semana
 
@@ -106,7 +110,7 @@ GET /entrenamientos/titulares?semana=1
 ```json
 [
   {
-    "nombre": "Jugador3",
+    "nombre": "Nicolas",
     "potencia": 15.33,
     "pases": 29.67,
     "velocidad": 3.33,
@@ -114,6 +118,8 @@ GET /entrenamientos/titulares?semana=1
   }
 ]
 ```
+
+Cada valor de `potencia`, `pases` y `velocidad` es el promedio de los 3 entrenamientos de esa semana, y `promedio` es el promedio de los resultados, que es el criterio de ordenamiento.
 
 - Si **algún** jugador no completó sus 3 entrenamientos de la semana, devuelve (status 400) un mensaje indicando que no hay suficiente información.
 

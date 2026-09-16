@@ -18,6 +18,8 @@ public class JugadorController {
 
     @PostMapping
     public ResponseEntity<Jugador> registrar(@RequestBody Jugador jugador) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(jugadorRepository.save(jugador));
+    return ResponseEntity.status(HttpStatus.CREATED).body(jugadorRepository.save(jugador));
     }
+
+    
 }

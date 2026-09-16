@@ -3,6 +3,7 @@ package com.futbol_5.prueba_tecnica_1.service;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.futbol_5.prueba_tecnica_1.dto.EntrenamientoRequestDTO;
 import com.futbol_5.prueba_tecnica_1.dto.TitularesDTO;
 import com.futbol_5.prueba_tecnica_1.entity.Entrenamiento;
 import com.futbol_5.prueba_tecnica_1.entity.Jugador;
@@ -21,14 +22,19 @@ public class EntrenamientoService {
     private final EntrenamientoRepository entrenamientoRepository;
     private final JugadorRepository jugadorRepository;
 
-    public Entrenamiento registroEntrenamiento(Entrenamiento entrenamiento) {
+    public Entrenamiento registroEntrenamiento(EntrenamientoRequestDTO dto) {
 
-        int potencia = entrenamiento.getPotencia();
-        int pases = entrenamiento.getPases();
-        int velocidad = entrenamiento.getVelocidad();
+        Jugador jugador = jugadorRepository.findById(dto.getJugadorId())
+        .orElseThrow(() -> new RuntimeException("jugador no encontrado"));
 
-        double resultado = potencia * 0.20 + pases * 0.50 + velocidad * 0.30;
+        Entrenamiento entrenamiento = new Entrenamiento();
+        entrenamiento.setJugador(jugador);
+        entrenamiento.setSemana(dto.getSemana());
+        entrenamiento.setPotencia(dto.getPotencia());
+        entrenamiento.setPases(dto.getPases());
+        entrenamiento.setVelocidad(dto.getVelocidad());
 
+        double resultado = dto.getPotencia() * 0.20 + dto.getPases() * 0.50 + dto.getVelocidad() * 0.30;
         entrenamiento.setResultado(resultado);
 
         return entrenamientoRepository.save(entrenamiento);
